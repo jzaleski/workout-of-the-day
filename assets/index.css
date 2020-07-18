@@ -79,3 +79,23 @@ body {
   border: solid 1px #999;
   overflow: hidden;
 }
+
+@media only screen and (max-width: 640px) {
+  body {
+    background-color: #c6deff;
+  }
+
+  .mail-link, .sms-link {
+    display: block;
+    margin-top: 5px;
+  }
+
+  .date {
+    font-size: 1.75em;
+  }
+
+  .page-title {
+    font-size: 2em;
+    margin-top: 35px;
+  }
+}

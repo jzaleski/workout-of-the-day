@@ -1,0 +1,81 @@
+body {
+  background-color: #ffffed;
+  color: #444;
+  font-family: Helvetica;
+  font-weight: 300;
+  margin: 0;
+  padding: 5px 20px 10px 20px;
+}
+
+.date,
+.questions-container,
+.page-title {
+  text-align: center;
+}
+
+.date, .goal-container {
+  border-bottom: solid 1px #999;
+}
+
+.date {
+  background-color: #aaa;
+  color: #fff;
+  font-family: Courier New;
+  font-size: 1.85em;
+  font-weight: 700;
+  padding: 10px 5px;
+}
+
+.description {
+  font-size: 1.15em;
+  padding: 15px 15px 0 15px;
+}
+
+.goal-container {
+  background-color: #eee;
+  font-size: 1.25em;
+  padding: 15px;
+}
+
+.goal-label, .questions-label {
+  font-weight: 500;
+  margin-left: 3px;
+  text-decoration: underline;
+}
+
+.goal {
+  font-style: italic;
+}
+
+.mail-link, .sms-link {
+  text-decoration: none;
+}
+
+.mail-link:hover, .sms-link:hover {
+  text-decoration: underline;
+}
+
+.page-title, .workout-container {
+  max-width: 640px;
+}
+
+.page-title {
+  color: #337744;
+  font-family: Tahoma;
+  font-size: 2.5em;
+  font-weight: 900;
+  margin-bottom: 40px;
+}
+
+.questions-container {
+  background-color: #eee;
+  border-top: solid 1px #999;
+  padding: 20px;
+}
+
+.workout-container {
+  background-color: #fff;
+  border-radius: 25px;
+  border: solid 1px #999;
+  overflow: hidden;
+}

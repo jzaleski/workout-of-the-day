@@ -1,0 +1,10 @@
+.DS_Store
+
+build/*
+!build/.keep
+
+log/*
+!log/.keep
+
+tmp/*
+!tmp/.keep

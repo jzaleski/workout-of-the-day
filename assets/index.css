@@ -64,7 +64,7 @@ body {
   font-family: Tahoma;
   font-size: 2.5em;
   font-weight: 900;
-  margin-bottom: 40px;
+  margin: 35px auto 40px auto;
 }
 
 .questions-container {
@@ -77,7 +77,26 @@ body {
   background-color: #fff;
   border-radius: 25px;
   border: solid 1px #999;
-  overflow: hidden;
+  margin: auto;
+  overflow-x: hidden;
+}
+
+@media only screen and (max-width: 840px) {
+  body {
+    background-color: #cfc;
+  }
+
+  .date {
+    font-size: 1.8em;
+  }
+
+  .description {
+    font-size: 1.1em;
+  }
+
+  .page-title {
+    font-size: 2.25em;
+  }
 }
 
 @media only screen and (max-width: 640px) {
@@ -85,17 +104,20 @@ body {
     background-color: #c6deff;
   }
 
+  .date {
+    font-size: 1.75em;
+  }
+
+  .description {
+    font-size: 1.05em;
+  }
+
   .mail-link, .sms-link {
     display: block;
     margin-top: 5px;
   }
 
-  .date {
-    font-size: 1.75em;
-  }
-
   .page-title {
     font-size: 2em;
-    margin-top: 35px;
   }
 }

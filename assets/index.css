@@ -13,7 +13,7 @@ body {
   text-align: center;
 }
 
-.date, .goal-container {
+.date, .goal {
   border-bottom: solid 1px #999;
 }
 
@@ -31,20 +31,10 @@ body {
   padding: 15px 15px 0 15px;
 }
 
-.goal-container {
+.goal {
   background-color: #eee;
   font-size: 1.25em;
   padding: 15px;
-}
-
-.goal-label, .questions-label {
-  font-weight: 500;
-  margin-left: 3px;
-  text-decoration: underline;
-}
-
-.goal {
-  font-style: italic;
 }
 
 .mail-link, .sms-link {
@@ -71,6 +61,12 @@ body {
   background-color: #eee;
   border-top: solid 1px #999;
   padding: 20px;
+}
+
+.questions-label {
+  font-weight: 500;
+  margin-left: 3px;
+  text-decoration: underline;
 }
 
 .workout-container {

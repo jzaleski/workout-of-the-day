@@ -26,15 +26,17 @@ body {
   padding: 10px 5px;
 }
 
+.description, .goal {
+  padding: 15px;
+}
+
 .description {
   font-size: 1.15em;
-  padding: 15px 15px 0 15px;
 }
 
 .goal {
   background-color: #eee;
   font-size: 1.25em;
-  padding: 15px;
 }
 
 .mail-link, .sms-link {

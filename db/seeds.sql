@@ -15,3 +15,21 @@ INSERT INTO workout (
   'JonathanZaleski@gmail.com',
   0
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed
+) VALUES (
+  2,
+  '2020-07-25',
+  '<u>Goal:</u>&nbsp;<i>Cardio &amp; Strength Training</i>',
+  '<b>Exercise(s):</b><br/><ul><li>5 Uphill Sprints (~100m)</li><li>100 Dumbbell Hammer Curls</li><li>100 Dumbbell Bicep Curls</li></ul><b>Cooldown:</b><br/><ul><li>Run 1 Mile</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0
+) ON CONFLICT DO NOTHING;

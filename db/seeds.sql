@@ -28,7 +28,7 @@ INSERT INTO workout (
   2,
   '2020-07-25',
   '<u>Goal:</u>&nbsp;<i>Cardio &amp; Strength Training</i>',
-  '<b>Exercise(s):</b><br/><ul><li>5 Uphill Sprints (~100m)</li><li>100 Dumbbell Hammer Curls</li><li>100 Dumbbell Bicep Curls</li></ul><b>Cooldown:</b><br/><ul><li>Run 1 Mile</li></ul>',
+  '<b>Exercise(s):</b><br/><ul><li>100 Dumbbell Hammer Curls</li><li>100 Dumbbell Bicep Curls</li><li>50 Dumbbell Tricep Extensions</li><li>5 Uphill Sprints (~100m)</li></ul><b>Cooldown:</b><br/><ul><li>Run 1 Mile</li></ul>',
   '+1-617-455-7595',
   'JonathanZaleski@gmail.com',
   0

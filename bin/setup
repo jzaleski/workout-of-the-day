@@ -2,22 +2,16 @@
 
 set -e;
 
-cat_cmd=$(which cat || echo -n);
-if [ -z ${cat_cmd} ]; then
-  echo "Could not locate \"cat\" binary";
-  exit 1;
-fi
-
 psql_cmd=$(which psql || echo -n);
 if [ -z ${psql_cmd} ]; then
   echo "Could not locate \"psql\" binary";
   exit 1;
 fi
 
-database_name=${DATABASE_NAME:-"workout_of_the_day"};
-database_base_url=${DATABASE_BASE_URL:-"postgres://localhost:5432"};
-echo "CREATE DATABASE ${database_name}" | \
-  ${psql_cmd} "${database_base_url}/postgres" || \
+echo "CREATE DATABASE ${DATABASE_NAME:-"workout_of_the_day"}" | \
+  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://localhost:5432"}/postgres" || \
   true;
-${cat_cmd} $(dirname $0)/../db/schema.sql $(dirname $0)/../db/seeds.sql | \
-  ${psql_cmd} "${database_base_url}/${database_name}";
+
+for script in schema seed; do
+  $(dirname $0)/${script};
+done

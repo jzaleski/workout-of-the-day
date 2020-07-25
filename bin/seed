@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -e;
+
+cat_cmd=$(which cat || echo -n);
+if [ -z ${cat_cmd} ]; then
+  echo "Could not locate \"cat\" binary";
+  exit 1;
+fi
+
+psql_cmd=$(which psql || echo -n);
+if [ -z ${psql_cmd} ]; then
+  echo "Could not locate \"psql\" binary";
+  exit 1;
+fi
+
+${cat_cmd} $(dirname $0)/../db/seeds.sql | \
+  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://localhost:5432"}/${DATABASE_NAME:-"workout_of_the_day"}";

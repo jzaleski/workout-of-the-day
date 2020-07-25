@@ -27,6 +27,8 @@ type Workout struct {
   Description template.HTML
   SmsTo string
   MailTo string
+  MarkedCompleted bool
+  Completed int
 }
 
 /* Constant(s) */
@@ -36,17 +38,12 @@ const BIND_ADDRESS_TEMPLATE = "%s:%s"
 const DATABASE_URL_KEY = "DATABASE_URL"
 const DEFAULT_DATABASE_URL = "postgres://localhost:5432/workout_of_the_day"
 const DEFAULT_PORT = "5000"
-const DEFAULT_WORKOUT_DESCRIPTION = "<b>Exercise(s):</b><br/><ul><li>150 Air Squats</li><li>100 Sit-Ups</li><li>50 Push-Ups</li><li>Run 3 Miles</li></ul>"
-const DEFAULT_WORKOUT_DESCRIPTION_KEY = "DEFAULT_WORKOUT_DESCRIPTION"
-const DEFAULT_WORKOUT_GOAL = "<u>Goal:</u>&nbsp;<i>General Fitness</i>"
-const DEFAULT_WORKOUT_GOAL_KEY = "DEFAULT_WORKOUT_GOAL"
-const DEFAULT_WORKOUT_MAIL_TO = "JonathanZaleski@gmail.com"
-const DEFAULT_WORKOUT_MAIL_TO_KEY = "DEFAULT_WORKOUT_MAIL_TO"
-const DEFAULT_WORKOUT_SMS_TO = "+1-617-455-7595"
-const DEFAULT_WORKOUT_SMS_TO_KEY = "DEFAULT_WORKOUT_SMS_TO"
 const INDEX_HTML_TEMPLATE = "index.html.tmpl"
-const LOCALHOST = "127.0.0.1"
+const INDEX_PATH = "/"
+const LOCALHOST = "localhost"
+const PRODUCTION_DOMAIN = "wod.jzaleski.com"
 const PORT_KEY = "PORT"
+const SESSION_COOKIE = "_wod"
 const SSLMODE_SUFFIX = "?sslmode=disable"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
 
@@ -72,23 +69,34 @@ func bindPort() string {
   return envOrDefault(PORT_KEY, DEFAULT_PORT)
 }
 
-func currentWorkout() Workout {
+func cookieExists(context *gin.Context) bool {
+  _, cookieError := context.Cookie(cookieName())
+  return cookieError == nil
+}
+
+func cookieName() string {
+  return time.Now().Format(WORKOUT_DATE_FORMAT)
+}
+
+func currentWorkout(context *gin.Context) Workout {
   databaseConnection := databaseConnection()
 
-  var workoutId int
+  var workoutId, workoutCompleted int
   var workoutDate time.Time
   var workoutGoal, workoutDescription, workoutSmsTo, workoutMailTo string
 
   var queryRowError = databaseConnection.QueryRow(`
     SELECT
       id,
-      date,
+      GREATEST(date, NOW()),
       goal,
       description,
       sms_to,
-      mail_to
+      mail_to,
+      completed
     FROM workout
-    WHERE date::DATE = NOW()::DATE
+    WHERE date::DATE = NOW()::DATE OR id = 1
+    ORDER BY date DESC, id DESC
     LIMIT 1`,
   ).Scan(
     &workoutId,
@@ -97,15 +105,11 @@ func currentWorkout() Workout {
     &workoutDescription,
     &workoutSmsTo,
     &workoutMailTo,
+    &workoutCompleted,
   )
 
   if queryRowError != nil {
-    workoutId = defaultWorkoutId()
-    workoutDate = defaultWorkoutDate()
-    workoutGoal = defaultWorkoutGoal()
-    workoutDescription = defaultWorkoutDescription()
-    workoutSmsTo = defaultWorkoutSmsTo()
-    workoutMailTo = defaultWorkoutMailTo()
+    panic(queryRowError)
   }
 
   defer databaseConnection.Close()
@@ -117,6 +121,8 @@ func currentWorkout() Workout {
     Description: template.HTML(strings.TrimSpace(workoutDescription)),
     SmsTo: strings.TrimSpace(workoutSmsTo),
     MailTo: strings.TrimSpace(workoutMailTo),
+    MarkedCompleted: cookieExists(context),
+    Completed: workoutCompleted,
   }
 }
 
@@ -136,30 +142,6 @@ func databaseUrl() string {
   return databaseUrl
 }
 
-func defaultWorkoutDate() time.Time {
-  return time.Now()
-}
-
-func defaultWorkoutDescription() string {
-  return envOrDefault(DEFAULT_WORKOUT_DESCRIPTION_KEY, DEFAULT_WORKOUT_DESCRIPTION)
-}
-
-func defaultWorkoutGoal() string {
-  return envOrDefault(DEFAULT_WORKOUT_GOAL_KEY, DEFAULT_WORKOUT_GOAL)
-}
-
-func defaultWorkoutId() int {
-  return -1
-}
-
-func defaultWorkoutMailTo() string {
-  return envOrDefault(DEFAULT_WORKOUT_MAIL_TO_KEY, DEFAULT_WORKOUT_MAIL_TO)
-}
-
-func defaultWorkoutSmsTo() string {
-  return envOrDefault(DEFAULT_WORKOUT_SMS_TO_KEY, DEFAULT_WORKOUT_SMS_TO)
-}
-
 func envOrDefault(key string, defaultValue string) string {
   result, found := os.LookupEnv(key)
   if found {
@@ -170,11 +152,44 @@ func envOrDefault(key string, defaultValue string) string {
 
 /* Handler(s) */
 
+func completedHandler(context *gin.Context) {
+  if !cookieExists(context) {
+    workoutId := context.Param("workoutId")
+
+    databaseConnection := databaseConnection()
+
+    _, execError := databaseConnection.Exec(`
+      UPDATE workout
+      SET completed = completed + 1
+      WHERE id = $1`,
+      workoutId,
+    )
+
+    if execError != nil {
+      panic(execError)
+    }
+
+    context.SetCookie(
+      cookieName(),
+      "completed",
+      86400,
+      "/",
+      ".",
+      false,
+      true,
+    )
+
+    defer databaseConnection.Close()
+  }
+
+  context.Redirect(http.StatusFound, INDEX_PATH)
+}
+
 func indexHandler(context *gin.Context) {
   context.HTML(
     http.StatusOK,
     INDEX_HTML_TEMPLATE,
-    currentWorkout(),
+    currentWorkout(context),
   )
 }
 
@@ -185,7 +200,8 @@ func main() {
   router := gin.New()
   router.LoadHTMLGlob("templates/*.tmpl")
   router.Use(gin.Logger(), gin.Recovery())
-  router.GET("/", indexHandler)
+  router.GET(INDEX_PATH, indexHandler)
+  router.POST("/:workoutId/completed", completedHandler)
   router.StaticFile("/favicon.ico", "assets/favicon.ico")
   router.Static("/assets", "assets")
   router.Run(bindAddress())

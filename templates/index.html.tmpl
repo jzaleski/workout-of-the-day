@@ -7,7 +7,6 @@
     <title>Workout of the Day (WOD)</title>
     <link href="/assets/favicon.ico" rel="apple-touch-icon"/>
     <link href="/assets/index.css" media="print" onload="this.media = 'all';" rel="stylesheet" type="text/css"/>
-    <script defer src="/assets/index.js" type="text/javascript"></script>
   </head>
   <body>
     <h1 class="page-title">Workout of the Day</h1>
@@ -15,6 +14,18 @@
       <div class="date">{{ .Date }}</div>
       <div class="goal">{{ .Goal }}</div>
       <div class="description">{{ .Description }}</div>
+      <div class="completed-container">
+        <div class="completed-box">
+          {{ if .MarkedCompleted }}
+            <label class="completed-label">Completed:</label>
+            <span class="num-completed">{{ .Completed }}</span>
+          {{ else }}
+            <form action="/{{ .Id }}/completed" method="post">
+              <input class="completed-submit" type="submit" value="I did it!"/>
+            </form>
+          {{ end }}
+        </div>
+      </div>
       <div class="questions-container">
         <label class="questions-label">Questions about this Workout?</label>
         {{ if .SmsTo }}
@@ -22,6 +33,7 @@
         {{ else if .MailTo }}
         <a class="mail-link" href="mailto:{{ .MailTo }}">{{ .MailTo }}</a><span>
         {{ end }}
-    <div>
+      </div>
+    </div>
   </body>
 </html>

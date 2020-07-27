@@ -29,6 +29,8 @@ type Workout struct {
   MailTo string
   MarkedCompleted bool
   Completed int
+  VotingEnabled bool
+  QuestionsEnabled bool
 }
 
 /* Constant(s) */
@@ -84,6 +86,7 @@ func currentWorkout(context *gin.Context) Workout {
   var workoutId, workoutCompleted int
   var workoutDate time.Time
   var workoutGoal, workoutDescription, workoutSmsTo, workoutMailTo string
+  var workoutVotingEnabled bool
 
   var queryRowError = databaseConnection.QueryRow(`
     SELECT
@@ -91,9 +94,10 @@ func currentWorkout(context *gin.Context) Workout {
       GREATEST(date, NOW()),
       goal,
       description,
-      sms_to,
-      mail_to,
-      completed
+      COALESCE(sms_to, ''),
+      COALESCE(mail_to, ''),
+      completed,
+      voting_enabled
     FROM workout
     WHERE date::DATE = NOW()::DATE OR id = 1
     ORDER BY date DESC, id DESC
@@ -106,6 +110,7 @@ func currentWorkout(context *gin.Context) Workout {
     &workoutSmsTo,
     &workoutMailTo,
     &workoutCompleted,
+    &workoutVotingEnabled,
   )
 
   if queryRowError != nil {
@@ -123,6 +128,8 @@ func currentWorkout(context *gin.Context) Workout {
     MailTo: strings.TrimSpace(workoutMailTo),
     MarkedCompleted: cookieExists(context),
     Completed: workoutCompleted,
+    VotingEnabled: workoutVotingEnabled,
+    QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
   }
 }
 

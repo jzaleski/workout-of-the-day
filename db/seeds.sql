@@ -117,3 +117,23 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  7,
+  '2020-08-01',
+  '<u>Goal:</u>&nbsp;<i>Aerobic Training / General Fitness</i>',
+  '<b>Exercise(s):</b><br/><ul><li>Run 1 Mile</li><li>50 Sit-Ups</li><li>45 Jumping Jacks</li><li>20 Lunges (10 on each side)</li><li>35 Air Squats</li><li>Run in place for 60 seconds</li><li>Plank for 60 seconds</li><li style="color: green; font-weight: 500;">Rest for 60 seconds</li><li>50 Sit-Ups</li><li>45 Jumping Jacks</li><li>20 Lunges (10 on each side)</li><li>35 Air Squats</li><li>40 Knee Highs (20 on each side)</li><li style="color: green; font-weight: 500;">Rest for 60 seconds</li><li>45 Jumping Jacks</li><li>20 Lunges (10 on each side)</li><li>40 Donkey Kicks (20 on each side)</li><li>20 Lunges (10 on each side)</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;

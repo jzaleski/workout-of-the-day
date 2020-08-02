@@ -137,3 +137,23 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  8,
+  '2020-08-02',
+  '<u>Goal:</u>&nbsp;General Fitness</i>',
+  '<b>Exercise(s):</b><br/><ul><li>3 Wall Sits (1 minute each)</li><li>30 Air Squats</li><li>30 Sit-Ups</li><li>30 Push-Ups</li><li>3 Uphill Sprints (~100m)</li><li>Run 3 Miles</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;

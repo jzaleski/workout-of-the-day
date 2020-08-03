@@ -157,3 +157,43 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  9,
+  '2020-08-03',
+  '<u>Goal:</u>&nbsp;<i>Rest Day</i>',
+  '<b>Exercise(s):</b><br/><br/>No Workout Today - Enjoy the day off!<br/><br/>',
+  null,
+  null,
+  0,
+  false
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  10,
+  '2020-08-04',
+  '<center><i>2 song Tuesday...</i></center>',
+  '<b>Exercise(s):</b><br><ul><li><a href="https://www.youtube.com/watch?v=6A2V9Bu80J4" style="color: #00f;" target="_blank">Flower, Moby</a> - Every time it says "Sally up" you stand, every time it says "Sally down" you squat and hold until it says "Sally up" again</li><li style="color: green; font-weight: 500;">Rest for 3 minutes</li><li><a href="https://www.youtube.com/watch?v=v2AC41dglnM" style="color: #00f;" target="_blank">Thunderstruck, AC/DC</a> - Every time you hear "thunder", drop down and do a burpee. And not the wimpy kind, make sure it has a push-up at the bottom and a full jump and clap above your head at the top!</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;

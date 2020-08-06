@@ -197,3 +197,23 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  11,
+  '2020-08-05',
+  '<u>Goal:</u>&nbsp;<i>Aerobic &amp; Strength Training</i>',
+  '<b>Exercise(s):</b><br><ul><li>50 Dumbbell Hammer Curls</li><li>50 Dumbbell Bicep Curls</li><li>50 Dumbbell Goblet Squats</li><li>25 Dumbell Bent-Over Rows</li><li>25 Dumbbell Skull Crushers</li><li>25 Push-Ups</li><li>Run 3 Miles (w/ a 100m Uphill Sprint at the end)</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;

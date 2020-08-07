@@ -40,14 +40,13 @@ const BIND_ADDRESS_TEMPLATE = "%s:%s"
 const DATABASE_URL_KEY = "DATABASE_URL"
 const DEFAULT_DATABASE_URL = "postgres://localhost:5432/workout_of_the_day"
 const DEFAULT_PORT = "5000"
-const INDEX_HTML_TEMPLATE = "index.html.tmpl"
-const INDEX_PATH = "/"
 const LOCALHOST = "localhost"
-const PRODUCTION_DOMAIN = "wod.jzaleski.com"
 const PORT_KEY = "PORT"
+const PRODUCTION_DOMAIN = "wod.jzaleski.com"
 const SESSION_COOKIE = "_wod"
 const SSLMODE_SUFFIX = "?sslmode=disable"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
+const WORKOUT_HTML_TEMPLATE = "workout.html.tmpl"
 
 
 /* Helper(s) */
@@ -80,8 +79,16 @@ func cookieName() string {
   return time.Now().Format(WORKOUT_DATE_FORMAT)
 }
 
-func currentWorkout(context *gin.Context) Workout {
+func getWorkout(context *gin.Context) Workout {
   databaseConnection := databaseConnection()
+
+  var dateFilterAndDisplayDate string
+  workoutDateParam := context.Param("workoutDate")
+  if workoutDateParam == "" || workoutDateParam == "current" {
+    dateFilterAndDisplayDate = "NOW()"
+  } else {
+    dateFilterAndDisplayDate = fmt.Sprintf("'%s'", workoutDateParam)
+  }
 
   var workoutId, workoutCompleted int
   var workoutDate time.Time
@@ -91,7 +98,7 @@ func currentWorkout(context *gin.Context) Workout {
   var queryRowError = databaseConnection.QueryRow(`
     SELECT
       id,
-      GREATEST(date, NOW()),
+      GREATEST(date, ` + dateFilterAndDisplayDate + `),
       goal,
       description,
       COALESCE(sms_to, ''),
@@ -99,7 +106,7 @@ func currentWorkout(context *gin.Context) Workout {
       completed,
       voting_enabled
     FROM workout
-    WHERE date::DATE = NOW()::DATE OR id = 1
+    WHERE date::DATE = ` + dateFilterAndDisplayDate + ` OR id = 1
     ORDER BY date DESC, id DESC
     LIMIT 1`,
   ).Scan(
@@ -128,7 +135,7 @@ func currentWorkout(context *gin.Context) Workout {
     MailTo: strings.TrimSpace(workoutMailTo),
     MarkedCompleted: cookieExists(context),
     Completed: workoutCompleted,
-    VotingEnabled: workoutVotingEnabled,
+    VotingEnabled: (workoutDateParam == "" || workoutDateParam == "current") && workoutVotingEnabled,
     QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
   }
 }
@@ -159,7 +166,11 @@ func envOrDefault(key string, defaultValue string) string {
 
 /* Handler(s) */
 
-func completedHandler(context *gin.Context) {
+func currentWorkoutHandler(context *gin.Context) {
+  context.Redirect(http.StatusFound, "/workout/current")
+}
+
+func workoutCompletedHandler(context *gin.Context) {
   if !cookieExists(context) {
     workoutId := context.Param("workoutId")
 
@@ -189,14 +200,14 @@ func completedHandler(context *gin.Context) {
     defer databaseConnection.Close()
   }
 
-  context.Redirect(http.StatusFound, INDEX_PATH)
+  context.Redirect(http.StatusFound, "/workout/current")
 }
 
-func indexHandler(context *gin.Context) {
+func workoutForDateHandler(context *gin.Context) {
   context.HTML(
     http.StatusOK,
-    INDEX_HTML_TEMPLATE,
-    currentWorkout(context),
+    WORKOUT_HTML_TEMPLATE,
+    getWorkout(context),
   )
 }
 
@@ -207,8 +218,9 @@ func main() {
   router := gin.New()
   router.LoadHTMLGlob("templates/*.tmpl")
   router.Use(gin.Logger(), gin.Recovery())
-  router.GET(INDEX_PATH, indexHandler)
-  router.POST("/:workoutId/completed", completedHandler)
+  router.GET("/", currentWorkoutHandler)
+  router.GET("/workout/:workoutDate", workoutForDateHandler)
+  router.POST("/workout/:workoutId/completed", workoutCompletedHandler)
   router.StaticFile("/favicon.ico", "assets/favicon.ico")
   router.Static("/assets", "assets")
   router.Run(bindAddress())

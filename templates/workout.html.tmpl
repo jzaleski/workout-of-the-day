@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>Workout of the Day (WOD)</title>
     <link href="/assets/favicon.ico" rel="apple-touch-icon"/>
-    <link href="/assets/index.css" media="print" onload="this.media = 'all';" rel="stylesheet" type="text/css"/>
+    <link href="/assets/workout.css" media="print" onload="this.media = 'all';" rel="stylesheet" type="text/css"/>
   </head>
   <body>
     <h1 class="page-title">Workout of the Day</h1>
@@ -21,7 +21,7 @@
             <label class="completed-label">Completed:</label>
             <span class="num-completed">{{ .Completed }}</span>
           {{ else }}
-            <form action="/{{ .Id }}/completed" method="post">
+            <form action="/workout/{{ .Id }}/completed" method="post">
               <input class="completed-submit" type="submit" value="I did it!"/>
             </form>
           {{ end }}

@@ -237,3 +237,43 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  13,
+  '2020-08-07',
+  '<u>Goal:</u>&nbsp;<i>Cardio</i>',
+  '<b>Exercise(s):</b><br/><ul><li>Run 7 Miles</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  14,
+  '2020-08-08',
+  '<u>Goal:</u>&nbsp;<i>Aerobic Exercise / General Fitness</i>',
+  '<b>Exercise(s):</b><br/><ul><li>Roll the dice 10 times</li></ul><b>Cooldown:</b><ul><li>Run 1 Mile</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;

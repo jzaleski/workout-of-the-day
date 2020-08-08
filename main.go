@@ -106,7 +106,7 @@ func getWorkout(context *gin.Context) Workout {
       completed,
       voting_enabled
     FROM workout
-    WHERE date::DATE = ` + dateFilterAndDisplayDate + ` OR id = 1
+    WHERE date::DATE = ` + dateFilterAndDisplayDate + `::DATE OR id = 1
     ORDER BY date DESC, id DESC
     LIMIT 1`,
   ).Scan(

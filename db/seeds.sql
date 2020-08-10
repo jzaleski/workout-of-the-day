@@ -277,3 +277,43 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  15,
+  '2020-08-09',
+  '<u>Goal:</u>&nbsp;<i>Rest Day</i>',
+  '<b>Exercise(s):</b><br/><br/>No Workout Today - Enjoy the day off!<br/><br/>',
+  null,
+  null,
+  0,
+  false
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  16,
+  '2020-08-11',
+  '<center><i>2 song Tuesday...</i></center>',
+  '<b>Exercise(s):</b><br><ul><li><a href="https://www.youtube.com/watch?v=uelHwf8o7_U" style="color: #00f;" target="_blank">Love The Way You Lie, Eminem (feat. Rhianna)</a> - Every time Rhianna sings, freeze in a held sit-up. Every time Eminem raps, do constantly-moving full sit ups or crunches. Lyrics like "Just gonna stand there and watch me burn" become very relevant if you''ve got a coach standing over you during this one.</li><li style="color: green; font-weight: 500;">Rest for 3 minutes</li><li><a href="https://www.youtube.com/watch?v=3T1c7GkzRQQ" style="color: #00f;" target="_blank">Roxanne, The Police</a> - Brace in a push up position (on your toes or knees). If you''re a male, you will do a push up every time it says "red light", and females, you do a push up every time you hear "Roxanne". Don''t be fooled… it gets incredibly hard towards the end.</li></ul>',
+  '+1-617-455-7595',
+  'JonathanZaleski@gmail.com',
+  0,
+  true
+) ON CONFLICT DO NOTHING;

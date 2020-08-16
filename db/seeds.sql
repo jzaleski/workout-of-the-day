@@ -357,3 +357,23 @@ INSERT INTO workout (
   0,
   true
 ) ON CONFLICT DO NOTHING;
+
+INSERT INTO workout (
+  id,
+  date,
+  goal,
+  description,
+  sms_to,
+  mail_to,
+  completed,
+  voting_enabled
+) VALUES (
+  19,
+  '2020-08-16',
+  '<u>Goal:</u>&nbsp;<i>Rest Day</i>',
+  '<b>Exercise(s):</b><br/><br/>No Workout Today - Enjoy the day off!<br/><br/>',
+  null,
+  null,
+  0,
+  false
+) ON CONFLICT DO NOTHING;

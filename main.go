@@ -38,7 +38,7 @@ type Workout struct {
 const ANY_IPV4_ADDRESS = "0.0.0.0"
 const BIND_ADDRESS_TEMPLATE = "%s:%s"
 const DATABASE_URL_KEY = "DATABASE_URL"
-const DEFAULT_DATABASE_URL = "postgres://localhost:5432/workout_of_the_day"
+const DEFAULT_DATABASE_URL = "postgres://postgres:postgres@localhost:5432/workout_of_the_day"
 const DEFAULT_PORT = "5000"
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"

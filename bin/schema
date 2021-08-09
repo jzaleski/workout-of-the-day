@@ -15,4 +15,4 @@ if [ -z ${psql_cmd} ]; then
 fi
 
 ${cat_cmd} $(dirname $0)/../db/schema.sql | \
-  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://localhost:5432"}/${DATABASE_NAME:-"workout_of_the_day"}";
+  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://postgres:postgres@localhost:5432"}/${DATABASE_NAME:-"workout_of_the_day"}";

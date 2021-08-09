@@ -40,6 +40,7 @@ const BIND_ADDRESS_TEMPLATE = "%s:%s"
 const DATABASE_URL_KEY = "DATABASE_URL"
 const DEFAULT_DATABASE_URL = "postgres://postgres:postgres@localhost:5432/workout_of_the_day?sslmode=disable"
 const DEFAULT_PORT = "5000"
+const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`;
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"
 const PRODUCTION_DOMAIN = "wod.jzaleski.com"
@@ -151,7 +152,7 @@ func databaseConnection() *pgx.Conn {
 }
 
 func databaseUrl() string {
-  return envOrDefault(DATABASE_URL_KEY, DEFAULT_DATABASE_URL)
+  return envOrPanic(DATABASE_URL_KEY)
 }
 
 func envOrDefault(key string, defaultValue string) string {
@@ -160,6 +161,14 @@ func envOrDefault(key string, defaultValue string) string {
     return result
   }
   return defaultValue
+}
+
+func envOrPanic(key string) string {
+  result, found := os.LookupEnv(key)
+  if !found {
+    panic(fmt.Sprintf(ENV_OR_PANIC_MESSAGE_TEMPLATE, key))
+  }
+  return result
 }
 
 /* Handler(s) */

@@ -6,7 +6,7 @@ package main
 /* Import(s) */
 
 import (
-  "database/sql"
+  "context"
   "fmt"
   "html/template"
   "net/http"
@@ -14,7 +14,7 @@ import (
   "strings"
   "time"
   "github.com/gin-gonic/gin"
-  _ "github.com/lib/pq"
+  "github.com/jackc/pgx/v4"
 )
 
 
@@ -69,8 +69,8 @@ func bindPort() string {
   return envOrDefault(PORT_KEY, DEFAULT_PORT)
 }
 
-func cookieExists(context *gin.Context) bool {
-  _, cookieError := context.Cookie(cookieName())
+func cookieExists(ginContext *gin.Context) bool {
+  _, cookieError := ginContext.Cookie(cookieName())
   return cookieError == nil
 }
 
@@ -78,11 +78,11 @@ func cookieName() string {
   return time.Now().Format(WORKOUT_DATE_FORMAT)
 }
 
-func getWorkout(context *gin.Context) Workout {
+func getWorkout(ginContext *gin.Context) Workout {
   databaseConnection := databaseConnection()
 
   var dateFilterAndDisplayDate string
-  workoutDateParam := context.Param("workoutDate")
+  workoutDateParam := ginContext.Param("workoutDate")
   if workoutDateParam == "" || workoutDateParam == "current" {
     dateFilterAndDisplayDate = "NOW()"
   } else {
@@ -94,7 +94,9 @@ func getWorkout(context *gin.Context) Workout {
   var workoutGoal, workoutDescription, workoutSmsTo, workoutMailTo string
   var workoutVotingEnabled bool
 
-  var queryRowError = databaseConnection.QueryRow(`
+  var queryRowError = databaseConnection.QueryRow(
+    context.Background(),
+    `
     SELECT
       id,
       GREATEST(date, ` + dateFilterAndDisplayDate + `),
@@ -107,7 +109,8 @@ func getWorkout(context *gin.Context) Workout {
     FROM workout
     WHERE date::DATE = ` + dateFilterAndDisplayDate + `::DATE OR id = 1
     ORDER BY date DESC, id DESC
-    LIMIT 1`,
+    LIMIT 1
+    `,
   ).Scan(
     &workoutId,
     &workoutDate,
@@ -123,7 +126,7 @@ func getWorkout(context *gin.Context) Workout {
     panic(queryRowError)
   }
 
-  defer databaseConnection.Close()
+  defer databaseConnection.Close(context.Background())
 
   return Workout{
     Id: workoutId,
@@ -132,15 +135,15 @@ func getWorkout(context *gin.Context) Workout {
     Description: template.HTML(strings.TrimSpace(workoutDescription)),
     SmsTo: strings.TrimSpace(workoutSmsTo),
     MailTo: strings.TrimSpace(workoutMailTo),
-    MarkedCompleted: cookieExists(context),
+    MarkedCompleted: cookieExists(ginContext),
     Completed: workoutCompleted,
     VotingEnabled: (workoutDateParam == "" || workoutDateParam == "current") && workoutVotingEnabled,
     QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
   }
 }
 
-func databaseConnection() *sql.DB {
-  databaseConnection, databaseConnectionError := sql.Open("postgres", databaseUrl())
+func databaseConnection() *pgx.Conn {
+  databaseConnection, databaseConnectionError := pgx.Connect(context.Background(), databaseUrl())
   if databaseConnectionError != nil {
     panic(databaseConnectionError)
   }
@@ -161,20 +164,23 @@ func envOrDefault(key string, defaultValue string) string {
 
 /* Handler(s) */
 
-func currentWorkoutHandler(context *gin.Context) {
-  context.Redirect(http.StatusFound, "/workout/current")
+func currentWorkoutHandler(ginContext *gin.Context) {
+  ginContext.Redirect(http.StatusFound, "/workout/current")
 }
 
-func workoutCompletedHandler(context *gin.Context) {
-  if !cookieExists(context) {
-    workoutId := context.Param("workoutId")
+func workoutCompletedHandler(ginContext *gin.Context) {
+  if !cookieExists(ginContext) {
+    workoutId := ginContext.Param("workoutId")
 
     databaseConnection := databaseConnection()
 
-    _, execError := databaseConnection.Exec(`
+    _, execError := databaseConnection.Exec(
+      context.Background(),
+      `
       UPDATE workout
       SET completed = completed + 1
-      WHERE id = $1`,
+      WHERE id = $1
+      `,
       workoutId,
     )
 
@@ -182,7 +188,7 @@ func workoutCompletedHandler(context *gin.Context) {
       panic(execError)
     }
 
-    context.SetCookie(
+    ginContext.SetCookie(
       cookieName(),
       "completed",
       86400,
@@ -192,17 +198,17 @@ func workoutCompletedHandler(context *gin.Context) {
       true,
     )
 
-    defer databaseConnection.Close()
+    defer databaseConnection.Close(context.Background())
   }
 
-  context.Redirect(http.StatusFound, "/workout/current")
+  ginContext.Redirect(http.StatusFound, "/workout/current")
 }
 
-func workoutForDateHandler(context *gin.Context) {
-  context.HTML(
+func workoutForDateHandler(ginContext *gin.Context) {
+  ginContext.HTML(
     http.StatusOK,
     WORKOUT_HTML_TEMPLATE,
-    getWorkout(context),
+    getWorkout(ginContext),
   )
 }
 

@@ -38,13 +38,12 @@ type Workout struct {
 const ANY_IPV4_ADDRESS = "0.0.0.0"
 const BIND_ADDRESS_TEMPLATE = "%s:%s"
 const DATABASE_URL_KEY = "DATABASE_URL"
-const DEFAULT_DATABASE_URL = "postgres://postgres:postgres@localhost:5432/workout_of_the_day"
+const DEFAULT_DATABASE_URL = "postgres://postgres:postgres@localhost:5432/workout_of_the_day?sslmode=disable"
 const DEFAULT_PORT = "5000"
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"
 const PRODUCTION_DOMAIN = "wod.jzaleski.com"
 const SESSION_COOKIE = "_wod"
-const SSLMODE_SUFFIX = "?sslmode=disable"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
 const WORKOUT_HTML_TEMPLATE = "workout.html.tmpl"
 
@@ -149,11 +148,7 @@ func databaseConnection() *sql.DB {
 }
 
 func databaseUrl() string {
-  var databaseUrl = envOrDefault(DATABASE_URL_KEY, DEFAULT_DATABASE_URL)
-  if !strings.HasSuffix(databaseUrl, SSLMODE_SUFFIX) {
-    return databaseUrl + SSLMODE_SUFFIX
-  }
-  return databaseUrl
+  return envOrDefault(DATABASE_URL_KEY, DEFAULT_DATABASE_URL)
 }
 
 func envOrDefault(key string, defaultValue string) string {

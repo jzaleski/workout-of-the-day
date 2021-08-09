@@ -9,7 +9,7 @@ if [ -z ${psql_cmd} ]; then
 fi
 
 echo "DROP DATABASE ${DATABASE_NAME:-"workout_of_the_day"}" | \
-  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://localhost:5432"}/postgres" || \
+  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://postgres:postgres@localhost:5432"}/postgres?sslmode=disable" || \
   true;
 
 $(dirname $0)/setup;

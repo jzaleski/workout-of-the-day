@@ -1,3 +1,5 @@
+DELETE FROM workout WHERE id = 1;
+
 INSERT INTO workout (
   id,
   date,
@@ -11,7 +13,7 @@ INSERT INTO workout (
   1,
   '1970-01-01',
   '<u>Goal:</u>&nbsp;<i>General Fitness</i>',
-  '<b>Exercise(s):</b><br/><ul><li>50 Air Squats</li><li>50 Sit-Ups</li><li>50 Push-Ups</li><li>50 Jumping Jacks</li><li>50 Knee-Highs (25 on each side)</li><li>50 Butt-Kicks (25 on each side)</li><li>50 Dumbbell Hammer Curls (25 for each arm)</li><li>50 Dumbbell Bicep Curls (25 for each arm)</li><li>25 Dumbbell Tricep Extensions</li><li>Run 3 Miles</li></ul>',
+  '<b>Exercise(s)</b> - (<i>Repeat for every meeting</i>)<b>:</b><br/><ul><li>15 Sit-Ups</li><li>15 Air Squats</li><li>15 Push-Ups</li></ul>',
   '+1-617-455-7595',
   'JonathanZaleski@gmail.com',
   0,

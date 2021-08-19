@@ -17,14 +17,13 @@
       {{ if .VotingEnabled }}
       <div class="completed-container">
         <div class="completed-box">
+          <form action="/workout/{{ .Id }}/completed" method="post">
           {{ if .MarkedCompleted }}
-            <label class="completed-label">Completed:</label>
-            <span class="num-completed">{{ .Completed }}</span>
+            <input class="completed-submit" type="submit" value="Completed: {{ .Completed }}"/>
           {{ else }}
-            <form action="/workout/{{ .Id }}/completed" method="post">
-              <input class="completed-submit" type="submit" value="I did it!"/>
-            </form>
+            <input class="completed-submit" type="submit" value="I did it!"/>
           {{ end }}
+          </form>
         </div>
       </div>
       {{ end }}

@@ -11,6 +11,7 @@ import (
   "html/template"
   "net/http"
   "os"
+  "strconv"
   "strings"
   "time"
   "github.com/gin-gonic/gin"
@@ -33,6 +34,7 @@ type Workout struct {
   QuestionsEnabled bool
 }
 
+
 /* Constant(s) */
 
 const ANY_IPV4_ADDRESS = "0.0.0.0"
@@ -43,7 +45,7 @@ const DEFAULT_PORT = "5000"
 const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`;
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"
-const PRODUCTION_DOMAIN = "wod.jzaleski.com"
+const SERVER_PUBLIC_ADDRESS_KEY = "SERVER_PUBLIC_ADDRESS"
 const SESSION_COOKIE = "_wod"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
 const WORKOUT_HTML_TEMPLATE = "workout.html.tmpl"
@@ -70,9 +72,34 @@ func bindPort() string {
   return envOrDefault(PORT_KEY, DEFAULT_PORT)
 }
 
+func cookieDomain() string {
+  if gin.Mode() == gin.ReleaseMode {
+    return envOrPanic(SERVER_PUBLIC_ADDRESS_KEY)
+  }
+  return LOCALHOST
+}
+
 func cookieExists(ginContext *gin.Context) bool {
   _, cookieError := ginContext.Cookie(cookieName())
   return cookieError == nil
+}
+
+func cookieValue(ginContext *gin.Context) int64 {
+  if (!cookieExists(ginContext)) {
+    return 0;
+  }
+
+  cookieValue, cookieError := ginContext.Cookie(cookieName())
+  if (cookieError != nil) {
+    panic(cookieError)
+  }
+
+  parseIntValue, parseIntError := strconv.ParseInt(cookieValue, 10, 64)
+  if (parseIntError != nil) {
+    panic(parseIntError)
+  }
+
+  return parseIntValue
 }
 
 func cookieName() string {
@@ -171,6 +198,7 @@ func envOrPanic(key string) string {
   return result
 }
 
+
 /* Handler(s) */
 
 func currentWorkoutHandler(ginContext *gin.Context) {
@@ -178,37 +206,37 @@ func currentWorkoutHandler(ginContext *gin.Context) {
 }
 
 func workoutCompletedHandler(ginContext *gin.Context) {
-  if !cookieExists(ginContext) {
-    workoutId := ginContext.Param("workoutId")
+  cookieValue := cookieValue(ginContext);
 
-    databaseConnection := databaseConnection()
+  workoutId := ginContext.Param("workoutId")
 
-    _, execError := databaseConnection.Exec(
-      context.Background(),
-      `
-      UPDATE workout
-      SET completed = completed + 1
-      WHERE id = $1
-      `,
-      workoutId,
-    )
+  databaseConnection := databaseConnection()
 
-    if execError != nil {
-      panic(execError)
-    }
+  _, execError := databaseConnection.Exec(
+    context.Background(),
+    `
+    UPDATE workout
+    SET completed = completed + 1
+    WHERE id = $1
+    `,
+    workoutId,
+  )
 
-    ginContext.SetCookie(
-      cookieName(),
-      "completed",
-      86400,
-      "/",
-      ".",
-      false,
-      true,
-    )
-
-    defer databaseConnection.Close(context.Background())
+  if execError != nil {
+    panic(execError)
   }
+
+  ginContext.SetCookie(
+    cookieName(),
+    fmt.Sprintf("%d", cookieValue + 1),
+    86400,
+    "/",
+    cookieDomain(),
+    false,
+    true,
+  )
+
+  defer databaseConnection.Close(context.Background())
 
   ginContext.Redirect(http.StatusFound, "/workout/current")
 }

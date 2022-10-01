@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS workout (
   voting_enabled boolean NOT NULL DEFAULT true
 );
 
-CREATE INDEX IF NOT EXISTS idx_workout_date_desc ON workout (date DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS udx_workout_date_desc ON workout (date DESC);

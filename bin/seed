@@ -2,6 +2,16 @@
 
 set -e;
 
+dot_env_dot_local_file="$(dirname $0)/../.env.local";
+if [ -e "${dot_env_dot_local_file}" ]; then
+  source ${dot_env_dot_local_file};
+fi
+
+if [ -z "$DATABASE_URL" ]; then
+  echo "A \"DATABASE_BASE_URL\" must be provided via the environment";
+  exit 1;
+fi
+
 cat_cmd=$(which cat || echo -n);
 if [ -z ${cat_cmd} ]; then
   echo "Could not locate \"cat\" binary";
@@ -14,9 +24,4 @@ if [ -z ${psql_cmd} ]; then
   exit 1;
 fi
 
-database_url=${DATABASE_URL};
-if [ -z "${database_url}" ]; then
-  database_url="${DATABASE_BASE_URL:-"postgres://postgres:postgres@localhost:5432"}/${DATABASE_NAME:-"workout_of_the_day"}?sslmode=disable";
-fi
-
-${cat_cmd} $(dirname $0)/../db/seeds.sql | ${psql_cmd} "${database_url}";
+${cat_cmd} $(dirname $0)/../db/seeds.sql | ${psql_cmd} "${DATABASE_URL}";

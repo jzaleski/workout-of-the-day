@@ -9,7 +9,9 @@
     <link href="/assets/workout.css" media="print" onload="this.media = 'all';" rel="stylesheet" type="text/css"/>
   </head>
   <body>
-    <h1 class="page-title">Workout of the Day</h1>
-    {{ template "workout-item" . }}
+    <h1 class="page-title"> All Workouts of the Day</h1>
+    {{ range . }}
+      {{ template "workout-item" . }}
+    {{ end }}
   </body>
 </html>

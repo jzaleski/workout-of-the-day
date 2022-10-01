@@ -8,3 +8,5 @@ log/*
 
 tmp/*
 !tmp/.keep
+
+.env.local

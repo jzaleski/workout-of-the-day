@@ -4,8 +4,25 @@ set -e;
 
 air_cmd=$(which air || echo -n);
 if [ -z ${air_cmd} ]; then
-  echo "Could not locate \"air\" binary";
+  echo "Could not locate \"air\" binary -- please install it using one of the methods documented here: https://github.com/cosmtrek/air#installation";
   exit 1;
 fi
 
-DATABASE_URL=${DATABASE_URL:-"postgres://postgres:postgres@localhost:5432/workout_of_the_day?sslmode=disable"} ${air_cmd};
+grep_cmd=$(which grep || echo -n);
+if [ -z ${grep_cmd} ]; then
+  echo "Could not locate \"grep\" binary";
+  exit 1;
+fi
+
+xargs_cmd=$(which xargs || echo -n);
+if [ -z ${xargs_cmd} ]; then
+  echo "Could not locate \"xargs\" binary";
+  exit 1;
+fi
+
+dot_env_dot_local_file="$(dirname $0)/../.env.local";
+if [ -e "$dot_env_dot_local_file" ]; then
+  export $(${grep_cmd} -v "^#" ${dot_env_dot_local_file} | ${xargs_cmd});
+fi
+
+${air_cmd};

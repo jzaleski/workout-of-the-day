@@ -2,15 +2,31 @@
 
 set -e;
 
+dot_env_dot_local_file="$(dirname $0)/../.env.local";
+if [ ! -e "${dot_env_dot_local_file}" ]; then
+  cp ${dot_env_dot_local_file}{.example,};
+fi
+
+source ${dot_env_dot_local_file};
+
+if [ -z "$DATABASE_BASE_URL" ]; then
+  echo "A \"DATABASE_BASE_URL\" must be provided via the environment";
+  exit 1;
+fi
+
+if [ -z "$DATABASE_NAME" ]; then
+  echo "A \"DATABASE_NAME\" must be provided via the environment";
+  exit 1;
+fi
+
 psql_cmd=$(which psql || echo -n);
 if [ -z ${psql_cmd} ]; then
   echo "Could not locate \"psql\" binary";
   exit 1;
 fi
 
-echo "CREATE DATABASE ${DATABASE_NAME:-"workout_of_the_day"}" | \
-  ${psql_cmd} "${DATABASE_BASE_URL:-"postgres://postgres:postgres@localhost:5432"}/postgres?sslmode=disable" || \
-  true;
+echo "CREATE DATABASE ${DATABASE_NAME}" | \
+  ${psql_cmd} "${DATABASE_BASE_URL}/postgres?sslmode=disable" || true;
 
 for script in schema seed; do
   $(dirname $0)/${script};

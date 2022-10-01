@@ -13,7 +13,7 @@ INSERT INTO workout (
   1,
   '1970-01-01',
   '<u>Goal:</u>&nbsp;<i>General Fitness</i>',
-  '<b>Exercise(s)</b> - (<i>Repeat for every meeting</i>)<b>:</b><br/><ul><li>15 Sit-Ups</li><li>15 Air Squats</li><li>15 Push-Ups</li></ul>',
+  '<b>Exercise(s):</b><br/><ul><li>25 Air Squats</li><li>25 Sit-Ups</li><li>25 Push-Ups</li><li>25 Jumping Jacks</li><li>30 Knee-Highs (15 on each side)</li><li>30 Butt-Kicks (15 on each side)</li><li>Run 2 Miles</li><li>30 Butt-Kicks (15 on each side)</li><li>30 Knee-Highs (15 on each side)</li><li>25 Jumping Jacks</li><li>25 Push-Ups</li><li>25 Sit-Ups</li><li>25 Air Squats</li></ul>',
   '+1-617-455-7595',
   'JonathanZaleski@gmail.com',
   0,

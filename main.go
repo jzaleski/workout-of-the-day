@@ -37,8 +37,6 @@ type Workout struct {
 
 /* Constant(s) */
 
-const ALL = "all"
-const ALL_WORKOUTS_HTML_TEMPLATE = "workout-list.html.tmpl"
 const ANY_IPV4_ADDRESS = "0.0.0.0"
 const BIND_ADDRESS_TEMPLATE = "%s:%s"
 const COMMA = ","
@@ -50,15 +48,17 @@ const DEFAULT_PORT = "5001"
 const EMPTY = ""
 const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`;
 const FALSE = "false"
+const HISTORICAL = "all"
+const HISTORICAL_WORKOUTS_HTML_TEMPLATE = "historical-workouts.html.tmpl"
 const INTERFACE_KEY = "INTERFACE"
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"
 const SERVER_PUBLIC_ADDRESS_KEY = "SERVER_PUBLIC_ADDRESS"
 const SESSION_COOKIE = "_wod"
+const SINGLE_WORKOUT_HTML_TEMPLATE = "single-workout.html.tmpl"
 const TRUE = "true"
 const TRUSTED_PROXIES_KEY = "TRUSTED_PROXIES"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
-const WORKOUT_HTML_TEMPLATE = "workout.html.tmpl"
 
 
 /* Helper(s) */
@@ -269,7 +269,7 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
     Description: template.HTML(strings.TrimSpace(workoutDescription)),
     SmsTo: strings.TrimSpace(workoutSmsTo),
     MailTo: strings.TrimSpace(workoutMailTo),
-    MarkedCompleted: cookieExists(ginContext),
+    MarkedCompleted: cookieExists(ginContext) && workoutCompleted > 0,
     Completed: workoutCompleted,
     VotingEnabled: (workoutDateParam == EMPTY || workoutDateParam == CURRENT) && workoutVotingEnabled,
     QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
@@ -337,16 +337,16 @@ func workoutCompletedHandler(ginContext *gin.Context) {
 func workoutMetaHandler(ginContext *gin.Context) {
   workoutDateParam := ginContext.Param("workoutDate")
 
-  if workoutDateParam == ALL {
+  if workoutDateParam == HISTORICAL {
     ginContext.HTML(
       http.StatusOK,
-      ALL_WORKOUTS_HTML_TEMPLATE,
+      HISTORICAL_WORKOUTS_HTML_TEMPLATE,
       getAllWorkouts(ginContext),
     )
   } else {
     ginContext.HTML(
       http.StatusOK,
-      WORKOUT_HTML_TEMPLATE,
+      SINGLE_WORKOUT_HTML_TEMPLATE,
       getWorkout(ginContext, workoutDateParam),
     )
   }

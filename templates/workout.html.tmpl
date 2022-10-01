@@ -1,15 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-    <title>Workout of the Day (WOTD)</title>
-    <link href="/assets/favicon.ico" rel="apple-touch-icon"/>
-    <link href="/assets/workout.css" media="print" onload="this.media = 'all';" rel="stylesheet" type="text/css"/>
-  </head>
-  <body>
-    <h1 class="page-title">Workout of the Day</h1>
-    {{ template "workout-item" . }}
-  </body>
-</html>
+{{ define "workout" }}
+<div class="workout-container" style="margin-bottom: 25px;">
+  <div class="date">{{ .Date }}</div>
+  <div class="goal">{{ .Goal }}</div>
+  <div class="description">{{ .Description }}</div>
+  {{ if .VotingEnabled }}
+  <div class="completed-container">
+    <div class="completed-box">
+      <form action="/workout/{{ .Id }}/completed" method="post">
+      {{ if .MarkedCompleted }}
+        <input class="completed-submit" type="submit" value="Completed: {{ .Completed }}"/>
+      {{ else }}
+        <input class="completed-submit" type="submit" value="I did it!"/>
+      {{ end }}
+      </form>
+    </div>
+  </div>
+  {{ end }}
+  {{ if .QuestionsEnabled }}
+  <div class="questions-container">
+    <label class="questions-label">Questions about this Workout?</label>
+    {{ if .SmsTo }}
+    <a class="sms-link" href="sms:{{ .SmsTo }}">{{ .SmsTo }}</a><span>
+    {{ else if .MailTo }}
+    <a class="mail-link" href="mailto:{{ .MailTo }}">{{ .MailTo }}</a><span>
+    {{ end }}
+  </div>
+  {{ end }}
+</div>
+{{ end }}

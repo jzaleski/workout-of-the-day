@@ -11,7 +11,7 @@ tmp_dir = "tmp"
 [build]
 cmd = "go build -o build/workout-of-the-day"
 bin = "build/workout-of-the-day"
-include_ext = ["go"]
+include_ext = ["css", "go", "tmpl"]
 exclude_dir = ["db", "bin", "build", "log", "static", "tmp"]
 include_dir = []
 exclude_file = []

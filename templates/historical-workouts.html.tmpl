@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{ template "head" }}
+  <body>
+    {{ template "page-title-and-links" }}
+    {{ range . }}
+      {{ template "workout" . }}
+    {{ end }}
+  </body>
+</html>

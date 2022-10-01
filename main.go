@@ -37,16 +37,26 @@ type Workout struct {
 
 /* Constant(s) */
 
+const ALL = "all"
 const ALL_WORKOUTS_HTML_TEMPLATE = "workout-list.html.tmpl"
 const ANY_IPV4_ADDRESS = "0.0.0.0"
 const BIND_ADDRESS_TEMPLATE = "%s:%s"
+const COMMA = ","
+const CURRENT = "current"
 const DATABASE_URL_KEY = "DATABASE_URL"
-const DEFAULT_PORT = "5000"
+const DEBUG_KEY = "DEBUG"
+const DEFAULT_INTERFACE = "localhost"
+const DEFAULT_PORT = "5001"
+const EMPTY = ""
 const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`;
+const FALSE = "false"
+const INTERFACE_KEY = "INTERFACE"
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"
 const SERVER_PUBLIC_ADDRESS_KEY = "SERVER_PUBLIC_ADDRESS"
 const SESSION_COOKIE = "_wod"
+const TRUE = "true"
+const TRUSTED_PROXIES_KEY = "TRUSTED_PROXIES"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
 const WORKOUT_HTML_TEMPLATE = "workout.html.tmpl"
 
@@ -62,10 +72,7 @@ func bindAddress() string {
 }
 
 func bindInterface() string {
-  if gin.Mode() == gin.ReleaseMode {
-    return ANY_IPV4_ADDRESS
-  }
-  return LOCALHOST
+  return envOrDefault(INTERFACE_KEY, DEFAULT_INTERFACE)
 }
 
 func bindPort() string {
@@ -116,6 +123,10 @@ func databaseConnection() *pgx.Conn {
 
 func databaseUrl() string {
   return envOrPanic(DATABASE_URL_KEY)
+}
+
+func debug() bool {
+  return envOrDefault(DEBUG_KEY, FALSE) == TRUE
 }
 
 func envOrDefault(key string, defaultValue string) string {
@@ -206,7 +217,7 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
   databaseConnection := databaseConnection()
 
   var dateFilterAndDisplayDate string
-  if workoutDateParam == "" || workoutDateParam == "current" {
+  if workoutDateParam == EMPTY || workoutDateParam == CURRENT {
     dateFilterAndDisplayDate = "NOW()"
   } else {
     dateFilterAndDisplayDate = fmt.Sprintf("'%s'", workoutDateParam)
@@ -260,9 +271,24 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
     MailTo: strings.TrimSpace(workoutMailTo),
     MarkedCompleted: cookieExists(ginContext),
     Completed: workoutCompleted,
-    VotingEnabled: (workoutDateParam == "" || workoutDateParam == "current") && workoutVotingEnabled,
+    VotingEnabled: (workoutDateParam == EMPTY || workoutDateParam == CURRENT) && workoutVotingEnabled,
     QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
   }
+}
+
+func ginMode() string {
+  if debug() {
+    return gin.DebugMode
+  }
+  return gin.ReleaseMode
+}
+
+func trustedProxies() []string {
+  trustedProxies := envOrDefault(TRUSTED_PROXIES_KEY, EMPTY)
+  if trustedProxies == EMPTY {
+    return nil
+  }
+  return strings.Split(trustedProxies, COMMA)
 }
 
 
@@ -311,7 +337,7 @@ func workoutCompletedHandler(ginContext *gin.Context) {
 func workoutMetaHandler(ginContext *gin.Context) {
   workoutDateParam := ginContext.Param("workoutDate")
 
-  if workoutDateParam == "all" {
+  if workoutDateParam == ALL {
     ginContext.HTML(
       http.StatusOK,
       ALL_WORKOUTS_HTML_TEMPLATE,
@@ -330,7 +356,9 @@ func workoutMetaHandler(ginContext *gin.Context) {
 /* Application entry-point */
 
 func main() {
+  gin.SetMode(ginMode())
   router := gin.New()
+  router.SetTrustedProxies(trustedProxies())
   router.LoadHTMLGlob("templates/*.tmpl")
   router.Use(gin.Logger(), gin.Recovery())
   router.GET("/", currentWorkoutHandler)

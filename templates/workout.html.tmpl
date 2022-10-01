@@ -5,9 +5,15 @@
   <div class="description">{{ .Description }}</div>
   {{ if .VotingEnabled }}
   <div class="completed-container">
+    {{ if .Historical }}
+    <div class="completed-box-disabled">
+    {{ else }}
     <div class="completed-box">
-      <form action="/workout/{{ .Id }}/completed" method="post">
-      {{ if .MarkedCompleted }}
+    {{ end }}
+      <form action="/workout/{{ .Date }}/completed" method="post">
+      {{ if .Historical }}
+        <input class="completed-submit-disabled" type="submit" disabled="disabled" value="Completed: {{ .Completed }}"/>
+      {{ else if .MarkedCompleted }}
         <input class="completed-submit" type="submit" value="Completed: {{ .Completed }}"/>
       {{ else }}
         <input class="completed-submit" type="submit" value="I did it!"/>

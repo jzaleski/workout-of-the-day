@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS workout (
-  id SERIAL PRIMARY KEY,
-  date timestamp without time zone NOT NULL,
+  date timestamp without time zone PRIMARY KEY,
   goal character varying NOT NULL,
   description text NOT NULL,
   sms_to character varying NULL,
@@ -8,5 +7,3 @@ CREATE TABLE IF NOT EXISTS workout (
   completed int NOT NULL DEFAULT 0,
   voting_enabled boolean NOT NULL DEFAULT true
 );
-
-CREATE UNIQUE INDEX IF NOT EXISTS udx_workout_date_desc ON workout (date DESC);

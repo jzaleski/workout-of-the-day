@@ -22,7 +22,6 @@ import (
 /* Struct(s) */
 
 type Workout struct {
-  Id int
   Date string
   Goal template.HTML
   Description template.HTML
@@ -32,6 +31,7 @@ type Workout struct {
   Completed int
   VotingEnabled bool
   QuestionsEnabled bool
+  Historical bool
 }
 
 
@@ -43,6 +43,7 @@ const COMMA = ","
 const CURRENT = "current"
 const DATABASE_URL_KEY = "DATABASE_URL"
 const DEBUG_KEY = "DEBUG"
+const DEFAULT_DATE = "1970-01-01"
 const DEFAULT_INTERFACE = "localhost"
 const DEFAULT_PORT = "5001"
 const EMPTY = ""
@@ -145,27 +146,28 @@ func envOrPanic(key string) string {
   return result
 }
 
-func getAllWorkouts(ginContext *gin.Context) []Workout {
+func getHistoricalWorkouts(ginContext *gin.Context) []Workout {
   databaseConnection := databaseConnection()
 
 
   var rows, queryError = databaseConnection.Query(
     context.Background(),
     `
-      SELECT
-        id,
-        date,
-        goal,
-        description,
-        COALESCE(sms_to, '') AS sms_to,
-        COALESCE(mail_to, '') AS mail_to,
-        false AS marked_completed,
-        completed,
-        false AS voting_enabled
-      FROM workout
-      WHERE id > 1
-      ORDER BY date DESC
+    SELECT
+      date,
+      goal,
+      description,
+      COALESCE(sms_to, '') AS sms_to,
+      COALESCE(mail_to, '') AS mail_to,
+      false AS marked_completed,
+      completed,
+      voting_enabled,
+      true AS historical
+    FROM workout
+    WHERE date <> $1::DATE
+    ORDER BY date DESC
     `,
+    DEFAULT_DATE,
   )
 
   defer databaseConnection.Close(context.Background())
@@ -174,16 +176,15 @@ func getAllWorkouts(ginContext *gin.Context) []Workout {
     panic(queryError)
   }
 
-  var workoutId, workoutCompleted int
+  var workoutCompleted int
   var workoutDate time.Time
   var workoutGoal, workoutDescription, workoutSmsTo, workoutMailTo string
-  var workoutMarkedCompleted, workoutVotingEnabled bool
+  var workoutMarkedCompleted, workoutVotingEnabled, workoutHistorical bool
   var workout Workout
 
   var workouts []Workout
   for rows.Next() {
     rows.Scan(
-      &workoutId,
       &workoutDate,
       &workoutGoal,
       &workoutDescription,
@@ -192,10 +193,10 @@ func getAllWorkouts(ginContext *gin.Context) []Workout {
       &workoutMarkedCompleted,
       &workoutCompleted,
       &workoutVotingEnabled,
+      &workoutHistorical,
     )
 
     workout = Workout{
-      Id: workoutId,
       Date: workoutDate.Format(WORKOUT_DATE_FORMAT),
       Goal: template.HTML(strings.TrimSpace(workoutGoal)),
       Description: template.HTML(strings.TrimSpace(workoutDescription)),
@@ -205,6 +206,7 @@ func getAllWorkouts(ginContext *gin.Context) []Workout {
       Completed: workoutCompleted,
       VotingEnabled: workoutVotingEnabled,
       QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
+      Historical: workoutHistorical,
     }
 
     workouts = append(workouts, workout)
@@ -220,33 +222,34 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
   if workoutDateParam == EMPTY || workoutDateParam == CURRENT {
     dateFilterAndDisplayDate = "NOW()"
   } else {
-    dateFilterAndDisplayDate = fmt.Sprintf("'%s'", workoutDateParam)
+    dateFilterAndDisplayDate = workoutDateParam
   }
 
-  var workoutId, workoutCompleted int
+  var workoutCompleted int
   var workoutDate time.Time
   var workoutGoal, workoutDescription, workoutSmsTo, workoutMailTo string
-  var workoutVotingEnabled bool
+  var workoutVotingEnabled, workoutHistorical bool
 
   var queryRowError = databaseConnection.QueryRow(
     context.Background(),
     `
     SELECT
-      id,
-      GREATEST(date, ` + dateFilterAndDisplayDate + `),
+      GREATEST(date, $1::DATE),
       goal,
       description,
       COALESCE(sms_to, '') AS sms_to,
       COALESCE(mail_to, '') AS mail_to,
       completed,
-      voting_enabled
+      voting_enabled,
+      $1::DATE < NOW()::DATE AS historical
     FROM workout
-    WHERE date::DATE = ` + dateFilterAndDisplayDate + `::DATE OR id = 1
-    ORDER BY date DESC, id DESC
+    WHERE date::DATE = $1::DATE OR date = $2::DATE
+    ORDER BY date DESC
     LIMIT 1
     `,
+    dateFilterAndDisplayDate,
+    DEFAULT_DATE,
   ).Scan(
-    &workoutId,
     &workoutDate,
     &workoutGoal,
     &workoutDescription,
@@ -254,6 +257,7 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
     &workoutMailTo,
     &workoutCompleted,
     &workoutVotingEnabled,
+    &workoutHistorical,
   )
 
   defer databaseConnection.Close(context.Background())
@@ -263,7 +267,6 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
   }
 
   return Workout{
-    Id: workoutId,
     Date: workoutDate.Format(WORKOUT_DATE_FORMAT),
     Goal: template.HTML(strings.TrimSpace(workoutGoal)),
     Description: template.HTML(strings.TrimSpace(workoutDescription)),
@@ -273,6 +276,7 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
     Completed: workoutCompleted,
     VotingEnabled: (workoutDateParam == EMPTY || workoutDateParam == CURRENT) && workoutVotingEnabled,
     QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
+    Historical: workoutHistorical,
   }
 }
 
@@ -301,22 +305,45 @@ func currentWorkoutHandler(ginContext *gin.Context) {
 func workoutCompletedHandler(ginContext *gin.Context) {
   cookieValue := cookieValue(ginContext);
 
-  workoutId := ginContext.Param("workoutId")
+  workoutDate := ginContext.Param("workoutDate")
 
   databaseConnection := databaseConnection()
 
-  _, execError := databaseConnection.Exec(
+  _, insertError := databaseConnection.Exec(
+    context.Background(),
+    `
+    INSERT INTO workout (
+      SELECT
+        NOW()::DATE,
+        goal,
+        description,
+        sms_to,
+        mail_to,
+        0,
+        voting_enabled
+      FROM workout
+      WHERE date = $1::DATE
+    ) ON CONFLICT DO NOTHING
+    `,
+    DEFAULT_DATE,
+  )
+
+  if insertError != nil {
+    panic(insertError)
+  }
+
+  _, updateError := databaseConnection.Exec(
     context.Background(),
     `
     UPDATE workout
     SET completed = completed + 1
-    WHERE id = $1
+    WHERE date = $1
     `,
-    workoutId,
+    workoutDate,
   )
 
-  if execError != nil {
-    panic(execError)
+  if updateError != nil {
+    panic(updateError)
   }
 
   ginContext.SetCookie(
@@ -341,7 +368,7 @@ func workoutMetaHandler(ginContext *gin.Context) {
     ginContext.HTML(
       http.StatusOK,
       HISTORICAL_WORKOUTS_HTML_TEMPLATE,
-      getAllWorkouts(ginContext),
+      getHistoricalWorkouts(ginContext),
     )
   } else {
     ginContext.HTML(
@@ -363,7 +390,7 @@ func main() {
   router.Use(gin.Logger(), gin.Recovery())
   router.GET("/", currentWorkoutHandler)
   router.GET("/workout/:workoutDate", workoutMetaHandler)
-  router.POST("/workout/:workoutId/completed", workoutCompletedHandler)
+  router.POST("/workout/:workoutDate/completed", workoutCompletedHandler)
   router.StaticFile("/favicon.ico", "assets/favicon.ico")
   router.Static("/assets", "assets")
   router.Run(bindAddress())

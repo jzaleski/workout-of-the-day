@@ -8,6 +8,7 @@ body {
 }
 
 .completed-box,
+.completed-box-disabled,
 .date,
 .page-links,
 .page-title,
@@ -15,14 +16,14 @@ body {
   text-align: center;
 }
 
-.completed-box, .completed-submit {
+.completed-box,
+.completed-box-disabled,
+.completed-submit {
   color: #333;
 }
 
-.completed-box {
-  background-color: #add8e6;
+.completed-box, .completed-box-disabled {
   border-radius: 10px;
-  border: solid 1px #555;
   font-size: 0.8em;
   height: 40px;
   line-height: 40px;
@@ -30,18 +31,32 @@ body {
   width: 200px;
 }
 
-.completed-label, .completed-submit {
-  font-weight: 600;
+.completed-box {
+  background-color: #add8e6;
+  border: solid 1px #555;
 }
 
-.completed-submit {
+.completed-box-disabled {
+  background-color: #ddd;
+  border: solid 1px #555;
+}
+
+.completed-submit, .completed-submit-disabled {
   background-color: transparent;
   border: none;
-  cursor: pointer;
+  font-weight: 600;
   height: 100%;
   margin: 0;
   outline: 0;
   width: 100%;
+}
+
+.completed-submit {
+  cursor: pointer;
+}
+
+.completed-submit-disabled {
+  color: #333;
 }
 
 .date, .goal {

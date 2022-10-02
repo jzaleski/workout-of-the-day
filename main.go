@@ -47,7 +47,7 @@ const DEFAULT_DATE = "1970-01-01"
 const DEFAULT_INTERFACE = "localhost"
 const DEFAULT_PORT = "5001"
 const EMPTY = ""
-const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`;
+const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`
 const FALSE = "false"
 const HISTORICAL = "all"
 const HISTORICAL_WORKOUTS_HTML_TEMPLATE = "historical-workouts.html.tmpl"
@@ -94,7 +94,7 @@ func cookieExists(ginContext *gin.Context) bool {
 
 func cookieValue(ginContext *gin.Context) int64 {
   if (!cookieExists(ginContext)) {
-    return 0;
+    return 0
   }
 
   cookieValue, cookieError := ginContext.Cookie(cookieName())
@@ -148,7 +148,6 @@ func envOrPanic(key string) string {
 
 func getHistoricalWorkouts(ginContext *gin.Context) []Workout {
   databaseConnection := databaseConnection()
-
 
   var rows, queryError = databaseConnection.Query(
     context.Background(),
@@ -274,7 +273,7 @@ func getWorkout(ginContext *gin.Context, workoutDateParam string) Workout {
     MailTo: strings.TrimSpace(workoutMailTo),
     MarkedCompleted: cookieExists(ginContext) && workoutCompleted > 0,
     Completed: workoutCompleted,
-    VotingEnabled: (workoutDateParam == EMPTY || workoutDateParam == CURRENT) && workoutVotingEnabled,
+    VotingEnabled: workoutVotingEnabled,
     QuestionsEnabled: len(workoutMailTo) > 0 || len(workoutSmsTo) > 0,
     Historical: workoutHistorical,
   }
@@ -303,8 +302,6 @@ func currentWorkoutHandler(ginContext *gin.Context) {
 }
 
 func workoutCompletedHandler(ginContext *gin.Context) {
-  cookieValue := cookieValue(ginContext);
-
   workoutDate := ginContext.Param("workoutDate")
 
   databaseConnection := databaseConnection()
@@ -348,7 +345,7 @@ func workoutCompletedHandler(ginContext *gin.Context) {
 
   ginContext.SetCookie(
     cookieName(),
-    fmt.Sprintf("%d", cookieValue + 1),
+    fmt.Sprintf("%d", 1),
     86400,
     "/",
     cookieDomain(),

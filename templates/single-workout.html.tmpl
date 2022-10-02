@@ -3,6 +3,10 @@
   {{ template "head" }}
   <body>
     {{ template "page-title-and-links" }}
-    {{ template "workout" . }}
+    {{ if .Historical }}
+      {{ template "historical-workout" . }}
+    {{ else }}
+      {{ template "workout" . }}
+    {{ end }}
   </body>
 </html>

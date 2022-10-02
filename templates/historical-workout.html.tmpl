@@ -1,21 +1,13 @@
-{{ define "workout" }}
-<div class="workout-container">
+{{ define "historical-workout" }}
+<div class="workout-container" style="margin-bottom: 25px;">
   <div class="date">{{ .Date }}</div>
   <div class="goal">{{ .Goal }}</div>
   <div class="description">{{ .Description }}</div>
-  {{ if .VotingEnabled }}
-  <div class="completed-container">
-    {{ if .MarkedCompleted }}
+  {{ if and .VotingEnabled .Completed }}
+  <div class="completed-container-disabled">
     <div class="completed-box-disabled">
       <input class="completed-submit-disabled" type="submit" disabled="disabled" value="Completed: {{ .Completed }}"/>
     </div>
-    {{ else }}
-    <div class="completed-box">
-      <form action="/workout/{{ .Date }}/completed" method="post">
-        <input class="completed-submit" type="submit" value="I did it!"/>
-      </form>
-    </div>
-    {{ end }}
   </div>
   {{ end }}
   {{ if .QuestionsEnabled }}

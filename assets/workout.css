@@ -18,7 +18,8 @@ body {
 
 .completed-box,
 .completed-box-disabled,
-.completed-submit {
+.completed-submit,
+.completed-submit-disabled {
   color: #333;
 }
 
@@ -55,10 +56,6 @@ body {
   cursor: pointer;
 }
 
-.completed-submit-disabled {
-  color: #333;
-}
-
 .date, .goal {
   border-bottom: solid 1px #999;
 }
@@ -76,7 +73,7 @@ body {
   padding: 15px;
 }
 
-.description {
+.description, .page-link {
   font-size: 1.15em;
 }
 
@@ -105,7 +102,6 @@ body {
 }
 
 .page-link {
-  font-size: 1.15em;
   font-weight: 600;
   padding: 0 10px;
 }
@@ -138,7 +134,7 @@ body {
   background-color: #fff;
   border-radius: 25px;
   border: solid 1px #999;
-  margin: auto;
+  margin: auto auto 25px auto;
   overflow-x: hidden;
 }
 
@@ -151,8 +147,12 @@ body {
     font-size: 1.8em;
   }
 
-  .description {
+  .description, .page-link {
     font-size: 1.1em;
+  }
+
+  .goal {
+    font-size: 1.2em;
   }
 
   .page-title {
@@ -169,8 +169,12 @@ body {
     font-size: 1.75em;
   }
 
-  .description {
+  .description, .page-link {
     font-size: 1.05em;
+  }
+
+  .goal {
+    font-size: 1.15;
   }
 
   .mail-link, .sms-link {

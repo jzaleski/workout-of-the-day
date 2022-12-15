@@ -17,7 +17,7 @@ WORKDIR /app
 
 COPY assets/*.css ./assets
 COPY assets/*.ico ./assets
-COPY templates/*.html ./templates
+COPY templates/*.tmpl ./templates
 COPY --from=builder /app/workout-of-the-day ./bin/workout-of-the-day
 
 CMD ["/app/bin/workout-of-the-day"]

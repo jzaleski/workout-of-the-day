@@ -15,9 +15,9 @@ RUN apk add ca-certificates
 
 WORKDIR /app
 
-COPY assets/*.css ./assets
-COPY assets/*.ico ./assets
-COPY templates/*.tmpl ./templates
+COPY assets/*.css ./assets/
+COPY assets/*.ico ./assets/
+COPY templates/*.tmpl ./templates/
 COPY --from=builder /app/workout-of-the-day ./bin/workout-of-the-day
 
 CMD ["/app/bin/workout-of-the-day"]

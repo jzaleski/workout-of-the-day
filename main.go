@@ -50,13 +50,13 @@ const EMPTY = ""
 const ENV_OR_PANIC_MESSAGE_TEMPLATE = `Key: "%s" was not found in the environment`
 const FALSE = "false"
 const HISTORICAL = "all"
-const HISTORICAL_WORKOUTS_HTML_TEMPLATE = "historical-workouts.html.tmpl"
+const HISTORICAL_WORKOUTS_HTML_TEMPLATE = "historical-workouts.html"
 const INTERFACE_KEY = "INTERFACE"
 const LOCALHOST = "localhost"
 const PORT_KEY = "PORT"
 const SERVER_PUBLIC_ADDRESS_KEY = "SERVER_PUBLIC_ADDRESS"
 const SESSION_COOKIE = "_wod"
-const SINGLE_WORKOUT_HTML_TEMPLATE = "single-workout.html.tmpl"
+const SINGLE_WORKOUT_HTML_TEMPLATE = "single-workout.html"
 const TRUE = "true"
 const TRUSTED_PROXIES_KEY = "TRUSTED_PROXIES"
 const WORKOUT_DATE_FORMAT = "2006-01-02"
@@ -383,7 +383,7 @@ func main() {
   gin.SetMode(ginMode())
   router := gin.New()
   router.SetTrustedProxies(trustedProxies())
-  router.LoadHTMLGlob("templates/*.tmpl")
+  router.LoadHTMLGlob("templates/*.html")
   router.Use(gin.Logger(), gin.Recovery())
   router.GET("/", currentWorkoutHandler)
   router.GET("/workout/:workoutDate", workoutMetaHandler)

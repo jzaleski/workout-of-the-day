@@ -2,15 +2,33 @@
 
 set -e;
 
-air_cmd=$(which air || echo -n);
-if [ -z ${air_cmd} ]; then
-  echo "Could not locate \"air\" binary -- please install it using one of the methods documented here: https://github.com/cosmtrek/air#installation";
+chokidar_cmd=$(which chokidar || echo -n);
+if [ -z ${chokidar_cmd} ]; then
+  echo "Could not locate \"chokidar\" binary -- please install it via: \`npm install -g chokidar-cli\`";
+  exit 1;
+fi
+
+go_cmd=$(which go || echo -n);
+if [ -z ${go_cmd} ]; then
+  echo "Could not locate \"go\" binary";
   exit 1;
 fi
 
 grep_cmd=$(which grep || echo -n);
 if [ -z ${grep_cmd} ]; then
   echo "Could not locate \"grep\" binary";
+  exit 1;
+fi
+
+kill_cmd=$(which kill || echo -n);
+if [ -z ${kill_cmd} ]; then
+  echo "Could not locate \"kill\" binary";
+  exit 1;
+fi
+
+lsof_cmd=$(which lsof || echo -n);
+if [ -z ${lsof_cmd} ]; then
+  echo "Could not locate \"lsof\" binary";
   exit 1;
 fi
 
@@ -25,4 +43,9 @@ if [ -e "$dot_env_dot_local_file" ]; then
   export $(${grep_cmd} -v "^#" ${dot_env_dot_local_file} | ${xargs_cmd});
 fi
 
-${air_cmd};
+${chokidar_cmd} \
+  "assets/*.css" \
+  "templates/*.html" \
+  "**/*.go" \
+  --initial \
+  --command "${go_cmd} build -o build/workout-of-the-day && (${kill_cmd} \$(${lsof_cmd} -ti tcp:${PORT:-"5001"}) 2> /dev/null || true) && build/workout-of-the-day";
